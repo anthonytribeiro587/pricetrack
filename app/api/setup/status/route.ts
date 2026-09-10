@@ -43,13 +43,16 @@ export async function GET() {
       reachable: databaseReachable,
       error: databaseError,
     },
+    encryption: {
+      mode: variables.CREDENTIAL_ENCRYPTION_KEY ? "dedicated" : variables.PRICE_TRACK_API_KEY ? "derived_from_panel_key" : "missing",
+    },
     readyForDashboard:
       variables.SUPABASE_URL &&
       variables.SUPABASE_SECRET_KEY &&
       variables.PRICE_TRACK_API_KEY &&
       databaseReachable,
     readyForMercadoLivre:
-      variables.CREDENTIAL_ENCRYPTION_KEY &&
+      variables.PRICE_TRACK_API_KEY &&
       variables.MELI_CLIENT_ID &&
       variables.MELI_CLIENT_SECRET &&
       variables.MELI_REDIRECT_URI &&
