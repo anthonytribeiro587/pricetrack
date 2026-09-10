@@ -1,4 +1,4 @@
-import { createDecipheriv, createCipheriv, randomBytes, timingSafeEqual } from "node:crypto";
+import { createDecipheriv, createCipheriv, createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
 function required(name: string) {
@@ -32,12 +32,22 @@ export function assertAdmin(request: Request) {
 }
 
 function credentialKey() {
-  const raw = required("CREDENTIAL_ENCRYPTION_KEY");
-  const key = /^[a-f0-9]{64}$/i.test(raw) ? Buffer.from(raw, "hex") : Buffer.from(raw, "base64");
-  if (key.length !== 32) {
-    throw new Error("CREDENTIAL_ENCRYPTION_KEY deve representar exatamente 32 bytes.");
+  const raw = process.env.CREDENTIAL_ENCRYPTION_KEY?.trim();
+
+  if (raw) {
+    const key = /^[a-f0-9]{64}$/i.test(raw) ? Buffer.from(raw, "hex") : Buffer.from(raw, "base64");
+    if (key.length !== 32) {
+      throw new Error("CREDENTIAL_ENCRYPTION_KEY deve representar exatamente 32 bytes.");
+    }
+    return key;
   }
-  return key;
+
+  const adminKey = required("PRICE_TRACK_API_KEY");
+  if (adminKey.length < 24) {
+    throw new Error("PRICE_TRACK_API_KEY deve ter pelo menos 24 caracteres para proteger os tokens do Mercado Livre.");
+  }
+
+  return createHash("sha256").update(`pricetrack:credentials:v1:${adminKey}`).digest();
 }
 
 export function encryptSecret(value: string) {
