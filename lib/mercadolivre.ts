@@ -1,6 +1,8 @@
 import { createHash, randomBytes } from "node:crypto";
 import { decryptSecret, encryptSecret, getServerSupabase } from "@/lib/server";
 
+const DEFAULT_APP_URL = "https://pricetrack-orpin.vercel.app";
+
 export type MercadoLivreItem = {
   id: string;
   title: string;
@@ -26,6 +28,14 @@ function env(name: string) {
   return value;
 }
 
+export function getAppUrl() {
+  return process.env.APP_URL?.trim() || DEFAULT_APP_URL;
+}
+
+export function getMercadoLivreRedirectUri() {
+  return process.env.MELI_REDIRECT_URI?.trim() || `${getAppUrl()}/api/mercadolivre/callback`;
+}
+
 export function createPkce() {
   const verifier = randomBytes(48).toString("base64url");
   const challenge = createHash("sha256").update(verifier).digest("base64url");
@@ -40,7 +50,7 @@ export function getAuthorizationUrl(state: string, codeChallenge: string) {
   const url = new URL("https://auth.mercadolivre.com.br/authorization");
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id", env("MELI_CLIENT_ID"));
-  url.searchParams.set("redirect_uri", env("MELI_REDIRECT_URI"));
+  url.searchParams.set("redirect_uri", getMercadoLivreRedirectUri());
   url.searchParams.set("state", state);
   url.searchParams.set("code_challenge", codeChallenge);
   url.searchParams.set("code_challenge_method", "S256");
@@ -67,7 +77,7 @@ export async function exchangeAuthorizationCode(code: string, codeVerifier: stri
     client_id: env("MELI_CLIENT_ID"),
     client_secret: env("MELI_CLIENT_SECRET"),
     code,
-    redirect_uri: env("MELI_REDIRECT_URI"),
+    redirect_uri: getMercadoLivreRedirectUri(),
     code_verifier: codeVerifier,
   }));
 }
