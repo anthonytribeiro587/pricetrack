@@ -89,3 +89,5 @@ O rótulo “possível bug” é heurístico. Não garante que a loja honrará o
 - Categorias e descoberta automática, sem cadastrar URL por URL.
 - Amazon e Shopee usando integrações permitidas para cada plataforma.
 - Autenticação multiusuário e planos SaaS.
+
+<!-- deployment trigger -->
