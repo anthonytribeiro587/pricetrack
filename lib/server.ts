@@ -1,14 +1,20 @@
 import { createDecipheriv, createCipheriv, createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
+const DEFAULT_SUPABASE_URL = "https://iwfzbelugzowzskrxhvj.supabase.co";
+
 function required(name: string) {
   const value = process.env[name];
   if (!value) throw new Error(`${name} não configurada.`);
   return value;
 }
 
+export function getSupabaseUrl() {
+  return process.env.SUPABASE_URL?.trim() || DEFAULT_SUPABASE_URL;
+}
+
 export function getServerSupabase() {
-  return createClient(required("SUPABASE_URL"), required("SUPABASE_SECRET_KEY"), {
+  return createClient(getSupabaseUrl(), required("SUPABASE_SECRET_KEY"), {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }
