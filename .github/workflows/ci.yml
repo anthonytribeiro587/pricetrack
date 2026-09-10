@@ -1,0 +1,38 @@
+name: PriceTrack CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package.json
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Build
+        env:
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_SECRET_KEY: sb_secret_ci_placeholder
+          PRICE_TRACK_API_KEY: ci-placeholder
+          CREDENTIAL_ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+          MELI_CLIENT_ID: ci-placeholder
+          MELI_CLIENT_SECRET: ci-placeholder
+          MELI_REDIRECT_URI: https://example.com/api/mercadolivre/callback
+          APP_URL: https://example.com
+          CRON_SECRET: ci-placeholder
+        run: npm run build
