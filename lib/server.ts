@@ -24,7 +24,10 @@ export function isAdminRequest(request: Request) {
 
 export function assertAdmin(request: Request) {
   if (!isAdminRequest(request)) {
-    throw new Response("Não autorizado.", { status: 401 });
+    const message = process.env.PRICE_TRACK_API_KEY
+      ? "Informe a chave correta do painel no campo à esquerda."
+      : "PRICE_TRACK_API_KEY ainda não foi configurada na Vercel.";
+    throw Response.json({ error: message }, { status: 401 });
   }
 }
 
